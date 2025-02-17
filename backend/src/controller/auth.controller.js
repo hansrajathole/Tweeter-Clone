@@ -1,7 +1,6 @@
 import User from '../models/user.model.js';
 import { generateTokenAndSetCookie } from '../lib/utils/generateToken.js';
-import bcrypt from 'bcrypt';
-import e from 'express';
+
 export async function signupController(req, res) {
     try {
         const { fullname, username, email, password } = req.body;
@@ -24,8 +23,7 @@ export async function signupController(req, res) {
             return res.status(400).json({ message: 'Password must be at least 6 characters' });
         }
 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, 12);
+        const hashedPassword = User.hashPassword(password)
 
         const newUser = new User({
             fullname,
@@ -62,12 +60,19 @@ export async function signupController(req, res) {
 export async function loginController(req, res) {
     try {
         const { username, password } = req.body;
-
-        const user = await User.findOne({ username });
-        const ispasswordCorrect = user && await bcrypt.compare(password, user.password);
-
-        if(!user || !ispasswordCorrect) {
-            return res.status(400).json({ message: 'Invalid username orpassword' });
+        console.log(username, password);
+        
+        const user = await User.findOne({ username: username });
+        console.log(user);
+        
+        if(!user){
+            return res.status(400).json({message :'Invalid username or password'})
+        }
+        const ispasswordCorrect = await user.copmarePassword(password)
+        console.log(ispasswordCorrect);
+        
+        if(!ispasswordCorrect) {
+            return res.status(400).json({ message: 'Invalid username or password' });
         }
 
         generateTokenAndSetCookie(user._id, res);
