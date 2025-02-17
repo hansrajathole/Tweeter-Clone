@@ -23,7 +23,7 @@ export async function signupController(req, res) {
             return res.status(400).json({ message: 'Password must be at least 6 characters' });
         }
 
-        const hashedPassword = User.hashPassword(password)
+        const hashedPassword = await User.hashPassword(password)
 
         const newUser = new User({
             fullname,
@@ -60,16 +60,15 @@ export async function signupController(req, res) {
 export async function loginController(req, res) {
     try {
         const { username, password } = req.body;
-        console.log(username, password);
         
         const user = await User.findOne({ username: username });
-        console.log(user);
-        
+
         if(!user){
             return res.status(400).json({message :'Invalid username or password'})
         }
         const ispasswordCorrect = await user.copmarePassword(password)
-        console.log(ispasswordCorrect);
+        
+        // console.log(ispasswordCorrect);
         
         if(!ispasswordCorrect) {
             return res.status(400).json({ message: 'Invalid username or password' });
@@ -110,6 +109,7 @@ export function logoutController(req, res) {
 export async function meController(req, res) {
     try {
         const user = await User.findById(req.user._id).select('-password');
+        console.log(user);
         
         if(!user) {
             return res.status(404).json({ message: 'User not found' });
