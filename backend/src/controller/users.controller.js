@@ -1,6 +1,8 @@
 import {v2 as cloudinary} from "cloudinary"
 import Notification from "../models/notification.model.js"
 import User from "../models/user.model.js"
+
+
 export const getUserProfile = async function (req,res) {
     const {username} = req.params
     
@@ -103,6 +105,8 @@ export const updateUser = async function (req, res) {
 
     const {fullname , email , username ,newPassword , currentPassword ,  bio , link} = req.body
     const { profilePicture, coverPicture } = req.body
+    console.log(req.body);
+    
     const userId = req.user._id
 
     try {
@@ -113,7 +117,7 @@ export const updateUser = async function (req, res) {
             return res.status(404).json({message : "user not foud"})
         }
 
-        if((!currentPassword &&newPassword) || (!newPassword && currentPassword)){
+        if((!currentPassword && newPassword) || (!newPassword && currentPassword)){
             return res.status(400).json({error : "Please provide both current password and new password"})
         }
 
